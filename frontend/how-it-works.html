@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How It Works — PaperExplainer Pipeline</title>
+<meta name="description" content="Learn how PaperExplainer filters PDF text with PyMuPDF, synthesizes scripts via NVIDIA LLMs, and animates 24 fps video with Edge-TTS and Pillow.">
+<link rel="canonical" href="{{SITE_URL}}/how-it-works">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:title" content="How It Works — PaperExplainer Pipeline">
+<meta property="og:description" content="Learn how PaperExplainer filters PDF text with PyMuPDF, synthesizes scripts via NVIDIA LLMs, and animates 24 fps video with Edge-TTS and Pillow.">
+<meta property="og:url" content="{{SITE_URL}}/how-it-works">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PaperExplainer">
+<meta property="og:image" content="{{SITE_URL}}/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PaperExplainer - How the Pipeline Works">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How It Works — PaperExplainer Pipeline">
+<meta name="twitter:description" content="Learn how PaperExplainer filters PDF text with PyMuPDF, synthesizes scripts via NVIDIA LLMs, and animates 24 fps video with Edge-TTS and Pillow.">
+<meta name="twitter:image" content="{{SITE_URL}}/assets/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{SITE_URL}}/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "How it works",
+      "item": "{{SITE_URL}}/how-it-works"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="/" class="brand" aria-label="PaperExplainer home">
+      PaperExplainer <span class="brand-badge">24 FPS</span>
+    </a>
+    <nav class="header-nav" aria-label="Main Navigation">
+      <a href="/how-it-works" class="nav-link active">How it works</a>
+      <a href="/about" class="nav-link">About</a>
+      <a href="/privacy" class="nav-link">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="btn-ghost" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <main class="content-page">
+    <nav aria-label="Breadcrumb" class="breadcrumbs">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><span aria-hidden="true">/</span></li>
+        <li aria-current="page">How it works</li>
+      </ol>
+    </nav>
+
+    <h1>How PaperExplainer Turns Papers into Video</h1>
+    <p class="lead">From a complex multi-column academic PDF to a 24 fps animated explainer video: here is how the local-first extraction, scripting, and rendering pipeline operates step by step.</p>
+
+    <h2>1. Ingestion &amp; Section Filtering</h2>
+    <p>When you drop a PDF or paste an arXiv identifier (e.g. <code>1706.03762</code>), PyMuPDF reads the raw document structure:</p>
+    <ul>
+      <li><strong>Noise pruning</strong>: The parser automatically identifies and filters out non-core sections including bibliographies, citation lists, author footnote blocks, and raw appendix tables that would otherwise clutter an explanation.</li>
+      <li><strong>Core focus</strong>: It isolates the abstract, introduction, problem motivation, proposed methodology, experiments, and conclusions.</li>
+      <li><strong>Chunk condensation</strong>: If the paper is long, the fast model condenses the text into a structured summary that fits neatly into the scripting context window.</li>
+    </ul>
+
+    <h2>2. Scripting &amp; Diagram Directives</h2>
+    <p>The structured paper text is processed by a configured NVIDIA NIM large language model (e.g. <code>meta/llama-3.2-11b-vision-instruct</code> or reasoning fallbacks):</p>
+    <ul>
+      <li><strong>7 to 9 Focused Scenes</strong>: The model produces a complete JSON storyboard with scene titles, concept source citations, spoken narration, and bulleted takeaways.</li>
+      <li><strong>Concrete facts</strong>: Prompts enforce specific facts, names, method terms, and experimental numbers from the paper—avoiding generic statements like "The Results" or "Future Work".</li>
+      <li><strong>Diagram Planning</strong>: Each scene is assigned a visual diagram layout: sequential flowcharts, cyclic loops, comparison split-screens, or comparative bar charts.</li>
+      <li><strong>Duplicate Validation</strong>: An automated repair step inspects the storyboard to eliminate repeated titles, redundant bullets, or narration that merely repeats slide headings.</li>
+    </ul>
+
+    <h2>3. Speech Synthesis &amp; 24 FPS Easing Animation</h2>
+    <p>Once the script is validated, the media generation engine builds the final MP4:</p>
+    <ul>
+      <li><strong>Natural Voice Recording</strong>: Microsoft Edge-TTS synthesizes natural speech in your selected voice and playback speed, producing word-aligned audio and timestamp boundaries.</li>
+      <li><strong>Frame-by-Frame Drawing</strong>: Pillow renders high-resolution frames with custom typography (Bricolage Grotesque and Literata), high-contrast cards, and cubic ease-out motion curves.</li>
+      <li><strong>FFmpeg Assembly</strong>: FFmpeg streams the animated frames and narration track into a single high-efficiency MP4 video, paired with downloadable <code>.vtt</code>/<code>.srt</code> subtitles and Markdown study notes.</li>
+    </ul>
+
+    <h2>System Limits &amp; Best Practices</h2>
+    <div class="callout">
+      <p><strong>Paper size &amp; formats:</strong> Maximum file size is 25 MB. The system works best with empirical research papers, computer science architectures, and experimental studies with clear methodologies. Pure math papers with heavy LaTeX equations or raw scanned PDFs without an embedded text layer may yield less structured diagrams.</p>
+    </div>
+    <p>All temporary files, cached summaries, and generated videos are kept locally in your project's <code>jobs/</code> directory. Learn more about data handling in our <a href="/privacy">Privacy &amp; Data Policy</a>.</p>
+
+    <div class="cta-box">
+      <h2>Ready to explain a research paper?</h2>
+      <p>Drop in a PDF or paste an arXiv link to generate your 24 fps video breakdown.</p>
+      <a href="/" class="btn-primary">Upload a Paper</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a> ·
+      <a href="/how-it-works">How it works</a> ·
+      <a href="/about">About</a> ·
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="footer-copy">PaperExplainer · Local-first Research Paper Video Explainer · Free &amp; Open Source</p>
+  </footer>
+</div>
+
+<script>
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = t === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem("theme", t);
+}
+applyTheme(getInitialTheme());
+const toggleBtn = document.getElementById("theme-toggle");
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(cur);
+  });
+}
+</script>
+</body>
+</html>

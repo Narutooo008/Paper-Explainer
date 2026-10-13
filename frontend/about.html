@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About PaperExplainer — Open Source Explainer</title>
+<meta name="description" content="PaperExplainer is a local-first, open-source tool turning dense research papers into digestible 24 fps video breakdowns and structured study notes.">
+<link rel="canonical" href="{{SITE_URL}}/about">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:title" content="About PaperExplainer — Open Source Explainer">
+<meta property="og:description" content="PaperExplainer is a local-first, open-source tool turning dense research papers into digestible 24 fps video breakdowns and structured study notes.">
+<meta property="og:url" content="{{SITE_URL}}/about">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PaperExplainer">
+<meta property="og:image" content="{{SITE_URL}}/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="About PaperExplainer">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About PaperExplainer — Open Source Explainer">
+<meta name="twitter:description" content="PaperExplainer is a local-first, open-source tool turning dense research papers into digestible 24 fps video breakdowns and structured study notes.">
+<meta name="twitter:image" content="{{SITE_URL}}/assets/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "PaperExplainer",
+  "url": "{{SITE_URL}}/about",
+  "email": "{{CONTACT_EMAIL}}"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{SITE_URL}}/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "About",
+      "item": "{{SITE_URL}}/about"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="/" class="brand" aria-label="PaperExplainer home">
+      PaperExplainer <span class="brand-badge">24 FPS</span>
+    </a>
+    <nav class="header-nav" aria-label="Main Navigation">
+      <a href="/how-it-works" class="nav-link">How it works</a>
+      <a href="/about" class="nav-link active">About</a>
+      <a href="/privacy" class="nav-link">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="btn-ghost" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <main class="content-page">
+    <nav aria-label="Breadcrumb" class="breadcrumbs">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><span aria-hidden="true">/</span></li>
+        <li aria-current="page">About</li>
+      </ol>
+    </nav>
+
+    <h1>About PaperExplainer</h1>
+    <p class="lead">PaperExplainer is a free, open-source tool designed to make academic literature more digestible by transforming dense research papers into animated 24 fps video explainers, study notes, and interactive Q&amp;A sessions.</p>
+
+    <h2>Why PaperExplainer?</h2>
+    <p>Academic literature moves at an unprecedented pace. Thousands of preprints are submitted to arXiv weekly across artificial intelligence, computer systems, and engineering. However, unpacking the core contributions, methodologies, and limitations of a 20-page manuscript typically demands hours of concentrated reading.</p>
+    <p>PaperExplainer bridges this gap: it extracts the fundamental argument, synthesizes animated diagrams (such as flowcharts, loops, and comparisons), and generates audio narration synced to high-resolution slides.</p>
+
+    <h2>Local-First Philosophy</h2>
+    <p>Unlike hosted AI dashboards that store uploaded documents in proprietary cloud accounts, PaperExplainer runs local-first:</p>
+    <ul>
+      <li><strong>Your device, your files</strong>: Uploaded PDFs, speech audio, animation frames, and study notes remain stored exclusively inside your local <code>jobs/</code> folder.</li>
+      <li><strong>Instant cleanup</strong>: Completed jobs can be completely purged with a single click or by clearing the folder.</li>
+      <li><strong>Independent execution</strong>: The server runs on your machine via FastAPI, Uvicorn, and Python, requiring no external subscription.</li>
+    </ul>
+
+    <h2>The Free AI Tier (NVIDIA NIM)</h2>
+    <p>PaperExplainer utilizes NVIDIA's developer API tier (<a href="https://build.nvidia.com" target="_blank" rel="noopener">build.nvidia.com</a>). Developers receive free trial credits to access high-performance open models like Llama 3.2 and Nemotron directly via standard OpenAI-compatible API calls.</p>
+    <div class="callout">
+      <p><strong>Configuring your key:</strong> Get an API key from build.nvidia.com, add it to your <code>.env</code> file under <code>NVIDIA_API_KEY</code>, and PaperExplainer handles the rest—including automatic model fallback and startup validation.</p>
+    </div>
+
+    <h2>Open Source &amp; Questions</h2>
+    <p>PaperExplainer is open source under the MIT License. For inquiries, technical questions, or bug reports, reach out to <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a> or explore our <a href="/how-it-works">How It Works</a> guide and <a href="/privacy">Privacy Policy</a>.</p>
+
+    <div class="cta-box">
+      <h2>Explore a research paper today</h2>
+      <p>Generate a video explainer from your own PDF or an arXiv link.</p>
+      <a href="/" class="btn-primary">Go to Explainer</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a> ·
+      <a href="/how-it-works">How it works</a> ·
+      <a href="/about">About</a> ·
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="footer-copy">PaperExplainer · Local-first Research Paper Video Explainer · Free &amp; Open Source</p>
+  </footer>
+</div>
+
+<script>
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = t === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem("theme", t);
+}
+applyTheme(getInitialTheme());
+const toggleBtn = document.getElementById("theme-toggle");
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(cur);
+  });
+}
+</script>
+</body>
+</html>

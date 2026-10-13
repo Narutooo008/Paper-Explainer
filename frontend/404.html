@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page Not Found — PaperExplainer</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="/" class="brand" aria-label="PaperExplainer home">
+      PaperExplainer <span class="brand-badge">24 FPS</span>
+    </a>
+    <nav class="header-nav" aria-label="Main Navigation">
+      <a href="/how-it-works" class="nav-link">How it works</a>
+      <a href="/about" class="nav-link">About</a>
+      <a href="/privacy" class="nav-link">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="btn-ghost" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <main class="content-page" style="text-align: center; padding-top: 48px;">
+    <nav aria-label="Breadcrumb" class="breadcrumbs" style="justify-content: center;">
+      <ol style="justify-content: center;">
+        <li><a href="/">Home</a></li>
+        <li><span aria-hidden="true">/</span></li>
+        <li aria-current="page">404 Not Found</li>
+      </ol>
+    </nav>
+
+    <h1>Page Not Found</h1>
+    <p class="lead" style="max-width: 48ch; margin: 0 auto 32px;">The page or paper route you requested could not be found. It may have been moved, deleted, or entered incorrectly.</p>
+
+    <div class="cta-box" style="max-width: 540px; margin: 0 auto;">
+      <h2>Looking for an explainer?</h2>
+      <p>Return to the main upload page to explain a research paper, or review how the pipeline functions.</p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="/" class="btn-primary">Go to Home</a>
+        <a href="/how-it-works" class="btn-secondary">How It Works</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a> ·
+      <a href="/how-it-works">How it works</a> ·
+      <a href="/about">About</a> ·
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="footer-copy">PaperExplainer · Local-first Research Paper Video Explainer · Free &amp; Open Source</p>
+  </footer>
+</div>
+
+<script>
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = t === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem("theme", t);
+}
+applyTheme(getInitialTheme());
+const toggleBtn = document.getElementById("theme-toggle");
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(cur);
+  });
+}
+</script>
+</body>
+</html>

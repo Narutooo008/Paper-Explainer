@@ -1,0 +1,20 @@
+# PaperExplainer
+
+> PaperExplainer transforms academic research PDFs and arXiv preprints into narrated 24 fps animated video explainers with flowcharts, subtitles, and structured study notes.
+
+## Public Pages
+- Home & App: /
+- How It Works Pipeline: /how-it-works
+- About PaperExplainer: /about
+- Privacy & Data Policy: /privacy
+
+## How It Works
+PaperExplainer executes a local-first, 3-stage pipeline:
+1. **Extraction & Filtering (PyMuPDF)**: Parses multi-column PDFs, strips bibliographies, footnote noise, and appendix listings, and isolates core methodological sections.
+2. **Script & Diagram Directives (NVIDIA NIM LLMs)**: Generates a 7-to-9 scene storyboard specifying concrete facts, conceptual slide diagrams (flowcharts, cycles, bar charts, and comparisons), and spoken narration with automated duplicate elimination.
+3. **Narration & Animation (Edge-TTS, Pillow, FFmpeg)**: Generates timestamped audio narration and renders 24 fps ease-out animation frames assembled into an MP4 with WebVTT subtitles and Markdown notes.
+
+## System Limits
+- Maximum uploaded PDF size is 25 MB.
+- Optimal for empirical papers, systems architectures, and experimental studies with clear methodologies.
+- Built for local execution using NVIDIA's free developer tier API keys; all media and cached summaries reside locally in the `jobs/` directory.

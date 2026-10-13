@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy &amp; Data Policy — PaperExplainer</title>
+<meta name="description" content="PaperExplainer is local-first. Uploaded PDFs, generated MP4s, and notes stay on your machine with one-click deletion and no analytics tracking.">
+<link rel="canonical" href="{{SITE_URL}}/privacy">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:title" content="Privacy &amp; Data Policy — PaperExplainer">
+<meta property="og:description" content="PaperExplainer is local-first. Uploaded PDFs, generated MP4s, and notes stay on your machine with one-click deletion and no analytics tracking.">
+<meta property="og:url" content="{{SITE_URL}}/privacy">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PaperExplainer">
+<meta property="og:image" content="{{SITE_URL}}/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PaperExplainer Privacy &amp; Data Policy">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy &amp; Data Policy — PaperExplainer">
+<meta name="twitter:description" content="PaperExplainer is local-first. Uploaded PDFs, generated MP4s, and notes stay on your machine with one-click deletion and no analytics tracking.">
+<meta name="twitter:image" content="{{SITE_URL}}/assets/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{SITE_URL}}/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Privacy",
+      "item": "{{SITE_URL}}/privacy"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="/" class="brand" aria-label="PaperExplainer home">
+      PaperExplainer <span class="brand-badge">24 FPS</span>
+    </a>
+    <nav class="header-nav" aria-label="Main Navigation">
+      <a href="/how-it-works" class="nav-link">How it works</a>
+      <a href="/about" class="nav-link">About</a>
+      <a href="/privacy" class="nav-link active">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="btn-ghost" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <main class="content-page">
+    <nav aria-label="Breadcrumb" class="breadcrumbs">
+      <ol>
+        <li><a href="/">Home</a></li>
+        <li><span aria-hidden="true">/</span></li>
+        <li aria-current="page">Privacy</li>
+      </ol>
+    </nav>
+
+    <h1>Privacy &amp; Data Policy</h1>
+    <p class="lead">PaperExplainer is built with a local-first architecture. This document details precisely what data is processed, what is stored on your machine, and how third-party APIs are contacted.</p>
+
+    <h2>1. Local Storage on Your Device</h2>
+    <p>All core processing artifacts are retained solely on your machine in the local <code>jobs/</code> folder within the application root directory:</p>
+    <ul>
+      <li><strong>Uploaded PDFs</strong>: The original PDF uploaded via file drop or retrieved from arXiv is saved locally in <code>jobs/{job_id}/paper.pdf</code>.</li>
+      <li><strong>Extracted text and cached summaries</strong>: Raw text extracted by PyMuPDF and condensed model summaries are kept in <code>jobs/{job_id}/cache/</code> to accelerate repeat runs.</li>
+      <li><strong>Generated Media</strong>: Audio clips (<code>.mp3</code>), rendered frames (<code>.png</code>), final 24 fps MP4 videos, <code>.srt</code>/<code>.vtt</code> subtitle files, and study notes (<code>paper-notes.md</code>) reside only on your drive.</li>
+    </ul>
+
+    <h2>2. Third-Party Transmission</h2>
+    <p>To produce summaries, storyboards, and speech narration, PaperExplainer makes encrypted HTTPS requests to external provider APIs:</p>
+    <ul>
+      <li><strong>NVIDIA NIM API</strong>: Text chunks extracted from the paper are sent to your configured model endpoint (at <code>integrate.api.nvidia.com</code>) using the API key specified in your local <code>.env</code> file. No personal profile data or user identity is sent.</li>
+      <li><strong>Microsoft Edge-TTS</strong>: Spoken sentences from the generated script are passed to Microsoft's Edge-TTS service over HTTPS to synthesize natural speech.</li>
+      <li><strong>No Analytics or Trackers</strong>: PaperExplainer includes zero tracking pixels, zero analytics scripts, zero advertisement beacons, and zero third-party cookie trackers.</li>
+    </ul>
+
+    <h2>3. Data Deletion &amp; Control</h2>
+    <p>You have full, permanent control over all stored data:</p>
+    <ul>
+      <li><strong>One-Click In-App Deletion</strong>: On the home page, clicking the "Delete" button next to any previous paper immediately deletes the entire job folder from disk.</li>
+      <li><strong>Manual Purge</strong>: You can delete the entire <code>jobs/</code> folder at any time in your filesystem; the application will automatically recreate an empty directory upon restart.</li>
+    </ul>
+
+    <h2>4. Contact &amp; Questions</h2>
+    <div class="callout">
+      <p>If you have any questions or data concerns regarding PaperExplainer, contact us at <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a> or review our open-source codebase on GitHub.</p>
+    </div>
+
+    <div class="cta-box">
+      <h2>Have a research paper to analyze?</h2>
+      <p>Upload a file or provide an arXiv ID to create an explainer video.</p>
+      <a href="/" class="btn-primary">Back to Explainer</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a> ·
+      <a href="/how-it-works">How it works</a> ·
+      <a href="/about">About</a> ·
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="footer-copy">PaperExplainer · Local-first Research Paper Video Explainer · Free &amp; Open Source</p>
+  </footer>
+</div>
+
+<script>
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = t === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem("theme", t);
+}
+applyTheme(getInitialTheme());
+const toggleBtn = document.getElementById("theme-toggle");
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(cur);
+  });
+}
+</script>
+</body>
+</html>

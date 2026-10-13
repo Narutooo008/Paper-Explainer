@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperExplainer — Research Papers Explained in Video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --paper: #ffffff;
+    --ink: #111827;
+    --muted: #4b5563; /* 7.2:1 contrast against --bg, well above 4.5:1 */
+    --line: #e5e7eb;
+    --cobalt: #2563eb;
+    --cobalt-hover: #1d4ed8;
+    --cobalt-subtle: #eff6ff;
+    --mark: #fef08a; /* soft yellow active chapter highlight */
+    --scene-on: #fef9c3;
+    --scene-on-border: #ca8a04;
+    --hover: #f3f4f6;
+    --err-bg: #fef2f2;
+    --err-line: #ef4444;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --body: "Literata", Georgia, Cambria, serif;
+    --trans: 180ms ease;
+
+    /* 8 standard type scale variables (no body text under 16px) */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-md: 18px;
+    --text-lg: 22px;
+    --text-xl: 28px;
+    --text-2xl: 36px;
+    --text-3xl: 44px;
+  }
+  [data-theme="dark"] {
+    --bg: #0b1329;
+    --paper: #13223f;
+    --ink: #f8fafc;
+    --muted: #94a3b8; /* 6.0:1 contrast against --bg, above 4.5:1 */
+    --line: #1e3258;
+    --cobalt: #3b82f6;
+    --cobalt-hover: #60a5fa;
+    --cobalt-subtle: #172a50;
+    --mark: #fde047;
+    --scene-on: #262c14;
+    --scene-on-border: #eab308;
+    --hover: #192c4e;
+    --err-bg: #2d1618;
+    --err-line: #f87171;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    overflow-x: hidden; max-width: 100%;
+  }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--body); font-size: var(--text-base); line-height: 1.6;
+    transition: background var(--trans), color var(--trans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, button, select, input, .ui { font-family: var(--display); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; width: 100%; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 2.5px solid var(--cobalt); outline-offset: 2.5px; }
+
+  /* Accessible visually hidden heading helper */
+  .visually-hidden {
+    position: absolute !important; width: 1px !important; height: 1px !important;
+    padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    padding: 24px 0; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    border-bottom: 1px solid var(--line); margin-bottom: 32px;
+  }
+  .brand {
+    font-family: var(--display); font-weight: 700; font-size: var(--text-lg); letter-spacing: -0.015em;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px; user-select: none;
+  }
+  .brand-badge {
+    background: var(--cobalt); color: #fff; font-size: var(--text-xs); font-weight: 700;
+    padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  /* ---------- Unified Button System: Exactly 3 Classes (.btn-primary, .btn-secondary, .btn-ghost) ---------- */
+  .btn-primary, .btn-secondary, .btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 40px; height: 40px; padding: 0 16px; border-radius: var(--radius);
+    font-family: var(--display); font-size: var(--text-sm); font-weight: 600; line-height: 1;
+    text-decoration: none; white-space: nowrap; cursor: pointer; box-sizing: border-box;
+    transition: all var(--trans); user-select: none;
+  }
+  .btn-primary:focus-visible, .btn-secondary:focus-visible, .btn-ghost:focus-visible {
+    outline: 2.5px solid var(--cobalt); outline-offset: 2.5px;
+  }
+  .btn-primary:disabled, .btn-secondary:disabled, .btn-ghost:disabled {
+    opacity: 0.5; cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--cobalt); color: #ffffff; border: 1px solid var(--cobalt);
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--cobalt-hover); border-color: var(--cobalt-hover);
+  }
+  .btn-secondary {
+    background: var(--paper); color: var(--ink); border: 1px solid var(--line);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--hover); border-color: var(--muted);
+  }
+  .btn-ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--hover); border-color: var(--muted);
+  }
+  .btn-ghost.danger:hover:not(:disabled) {
+    background: #dc2626; border-color: #dc2626; color: #ffffff;
+  }
+
+  /* ---------- dropdowns & popovers ---------- */
+  .dropdown-wrapper { position: relative; display: inline-block; }
+  .dropdown-trigger .caret { font-size: var(--text-xs); margin-left: 2px; }
+  .dropdown-menu, .popover-box {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 8px; min-width: 210px; box-shadow: var(--shadow-md);
+  }
+  .dropdown-item {
+    display: block; width: 100%; padding: 8px 12px; border-radius: 4px; border: none;
+    background: transparent; color: var(--ink); text-align: left; font-family: var(--display);
+    font-size: var(--text-sm); font-weight: 500; text-decoration: none; cursor: pointer; transition: background var(--trans);
+  }
+  .dropdown-item:hover { background: var(--hover); color: var(--cobalt); }
+  .popover-box { width: 280px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .popover-label { font-size: var(--text-xs); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .popover-select {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px;
+    background: var(--bg); color: var(--ink); font-size: var(--text-sm); font-family: var(--display);
+  }
+
+  /* ---------- upload page ---------- */
+  .hero-section {
+    padding: 16px 0 40px; text-align: center; max-width: 820px; margin: 0 auto;
+  }
+  .hero-badge {
+    display: inline-block; font-family: var(--display); font-size: var(--text-xs); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em; color: var(--cobalt); background: var(--cobalt-subtle);
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .hero-title {
+    font-size: clamp(var(--text-xl), 4vw, var(--text-3xl)); line-height: 1.12; letter-spacing: -0.03em;
+    font-weight: 700; margin: 0 0 16px; word-break: break-word;
+  }
+  .hero-subtitle {
+    font-size: var(--text-md); line-height: 1.5; color: var(--muted);
+    margin: 0 auto; max-width: 62ch;
+  }
+
+  .upload-grid {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px;
+    margin: 36px 0 64px; align-items: stretch;
+  }
+  .drop {
+    position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; min-height: 320px; padding: 36px 28px; text-align: center; cursor: pointer;
+    background: var(--paper); border: 1.5px dashed var(--line); border-radius: var(--radius);
+    transition: border-color var(--trans), background var(--trans);
+  }
+  .drop:hover, .drop.over { border-color: var(--cobalt); background: var(--cobalt-subtle); }
+  .drop-icon {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--cobalt-subtle);
+    display: flex; align-items: center; justify-content: center; color: var(--cobalt); margin-bottom: 2px;
+  }
+  .drop strong { font-family: var(--display); font-size: var(--text-lg); font-weight: 700; }
+  .drop small { color: var(--muted); font-size: var(--text-sm); }
+  .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  .config-panel {
+    display: flex; flex-direction: column; gap: 18px; justify-content: center;
+  }
+  .options-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; display: grid; grid-template-columns: 1fr 140px; gap: 14px; box-shadow: var(--shadow);
+  }
+  .field label {
+    display: block; font-family: var(--display); font-size: var(--text-xs); font-weight: 700;
+    color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .field select, .arxiv-box input, .chat-form input {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--bg); color: var(--ink); font-size: var(--text-sm); font-family: var(--display);
+    transition: border-color var(--trans);
+  }
+  .field select:focus, .arxiv-box input:focus, .chat-form input:focus {
+    border-color: var(--cobalt); outline: none;
+  }
+  .arxiv-box {
+    display: flex; gap: 8px; background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
+  }
+  .arxiv-box input { flex: 1; }
+
+  /* How it works */
+  .how-section {
+    padding: 48px 0; border-top: 1px solid var(--line);
+  }
+  .section-kicker {
+    font-family: var(--display); font-size: var(--text-xs); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--cobalt); margin-bottom: 6px;
+  }
+  .section-title {
+    margin: 0 0 8px; font-size: var(--text-lg); font-weight: 700; letter-spacing: -0.015em;
+  }
+  .how-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px;
+  }
+  .how-step {
+    padding: 20px 22px; border-radius: var(--radius); background: var(--paper);
+    border: 1px solid var(--line); box-shadow: var(--shadow);
+  }
+  .how-num {
+    font-family: var(--display); font-weight: 700; font-size: var(--text-sm); color: var(--cobalt);
+    margin-bottom: 8px;
+  }
+  .how-title {
+    font-size: var(--text-md); font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em;
+  }
+  .how-desc {
+    font-size: var(--text-base); line-height: 1.5; color: var(--muted); margin: 0;
+  }
+
+  /* Demo section */
+  .demo-section {
+    padding: 48px 0; border-top: 1px solid var(--line);
+  }
+  .demo-frame {
+    margin-top: 24px; background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+  }
+  .demo-img {
+    width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #0f1b33;
+  }
+  .demo-caption {
+    padding: 16px 22px; font-size: var(--text-sm); color: var(--muted); display: flex;
+    justify-content: space-between; align-items: center; border-top: 1px solid var(--line);
+  }
+
+  /* History */
+  .history { padding: 48px 0 64px; border-top: 1px solid var(--line); }
+  .history-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+  .history-head h2 { font-size: var(--text-lg); margin: 0; letter-spacing: -0.015em; }
+  .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .h-card {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; cursor: pointer;
+    transition: all var(--trans); box-shadow: var(--shadow);
+  }
+  .h-card:hover { border-color: var(--cobalt); transform: translateY(-2px); }
+  .h-title { font-family: var(--display); font-weight: 700; font-size: var(--text-base); line-height: 1.3; margin: 0; }
+  .h-summary { font-size: var(--text-base); line-height: 1.45; color: var(--muted); margin: 0; flex: 1; }
+  .h-foot { display: flex; justify-content: space-between; align-items: center; font-size: var(--text-sm); color: var(--muted); font-family: var(--display); padding-top: 4px; }
+
+  /* Privacy Note & Footer */
+  .privacy-note {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 22px; margin: 40px 0; font-size: var(--text-base); line-height: 1.5; color: var(--muted);
+  }
+  .privacy-note strong { color: var(--ink); }
+  footer {
+    padding: 32px 0 48px; border-top: 1px solid var(--line); text-align: center;
+    font-size: var(--text-sm); color: var(--muted); font-family: var(--display);
+  }
+
+  /* ---------- working state with named steps ---------- */
+  .working { max-width: 680px; margin: 48px auto; padding: 40px 24px 80px; text-align: center; }
+  .working-heading { font-size: var(--text-xl); margin: 0 0 8px; letter-spacing: -0.02em; }
+  .working-sub { color: var(--muted); margin: 0 0 32px; font-size: var(--text-base); }
+  .stepper {
+    display: flex; justify-content: space-between; gap: 6px; margin-bottom: 24px; position: relative;
+  }
+  .step-node {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font-family: var(--display); font-size: var(--text-xs); font-weight: 600; color: var(--muted);
+  }
+  .step-bullet {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--paper);
+    border: 2px solid var(--line); display: flex; align-items: center; justify-content: center;
+    font-size: var(--text-xs); font-weight: 700; transition: all var(--trans);
+  }
+  .step-node.active .step-bullet { border-color: var(--cobalt); background: var(--cobalt); color: #fff; }
+  .step-node.active { color: var(--cobalt); }
+  .step-node.done .step-bullet { border-color: var(--cobalt); background: var(--cobalt-subtle); color: var(--cobalt); }
+  .progress-bar-wrap { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+  .progress-bar-fill { height: 100%; width: 0%; background: var(--cobalt); transition: width .5s ease; border-radius: 4px; }
+  .step-meta { display: flex; justify-content: space-between; font-family: var(--display); font-size: var(--text-sm); font-weight: 600; }
+
+  /* Error */
+  .error { background: var(--err-bg); border-left: 4px solid var(--err-line); border-radius: var(--radius); padding: 22px 24px; margin: 60px auto; max-width: 640px; }
+  .error h2 { margin: 0 0 6px; font-size: var(--text-lg); color: var(--err-line); }
+  .error p { margin: 0 0 16px; font-size: var(--text-base); }
+
+  /* ---------- result page ---------- */
+  .result { padding-bottom: 96px; }
+  .paper-header { margin-bottom: 24px; }
+  .paper-title {
+    font-size: clamp(var(--text-lg), 3.5vw, var(--text-3xl)); line-height: 1.15; font-weight: 700;
+    letter-spacing: -0.025em; margin: 0 0 10px; max-width: 36ch; word-break: break-word;
+  }
+  .paper-summary {
+    font-size: var(--text-md); line-height: 1.55; color: var(--muted); margin: 0 0 18px; max-width: 72ch;
+  }
+
+  .action-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 24px;
+    border-bottom: 1px solid var(--line); margin-bottom: 28px;
+  }
+
+  .result-main {
+    display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; align-items: start;
+  }
+
+  /* Video hero */
+  .video-column { min-width: 0; }
+  .hero-video-wrap {
+    background: #000; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md);
+  }
+  video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+
+  /* Chapter timeline bar under video */
+  .chapter-timeline {
+    display: flex; gap: 3px; height: 7px; margin-top: 8px; border-radius: 4px; overflow: hidden; cursor: pointer;
+  }
+  .timeline-segment {
+    height: 100%; background: var(--line); flex: 1; transition: background var(--trans);
+  }
+  .timeline-segment.passed { background: var(--cobalt); }
+  .timeline-segment.active { background: var(--mark); }
+
+  /* Tabs under video */
+  .tabs-nav {
+    display: flex; gap: 6px; margin: 28px 0 18px; border-bottom: 1px solid var(--line);
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    max-width: 100%;
+  }
+  .tabs-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    all: unset; box-sizing: border-box; padding: 10px 14px; cursor: pointer;
+    font-family: var(--display); font-size: var(--text-sm); font-weight: 600; color: var(--muted);
+    border-bottom: 2px solid transparent; transition: all var(--trans);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--cobalt); border-bottom-color: var(--cobalt); }
+
+  .tab-pane { padding: 8px 0; }
+  .scene-kicker {
+    font-family: var(--display); font-size: var(--text-xs); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--cobalt); margin-bottom: 4px;
+  }
+  .active-scene-title {
+    font-size: var(--text-lg); line-height: 1.25; font-weight: 700;
+    margin: 0 0 8px; letter-spacing: -0.015em;
+  }
+  .scene-source {
+    font-family: var(--display); font-size: var(--text-xs); font-weight: 600; color: var(--cobalt);
+    margin: 0 0 14px; display: inline-flex; align-items: center; gap: 4px;
+    background: var(--cobalt-subtle); padding: 2px 8px; border-radius: 4px; width: fit-content;
+  }
+  .scene-source-tag {
+    font-family: var(--display); font-size: var(--text-xs); font-weight: 700; color: var(--cobalt);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+  }
+  .scene-bullets {
+    margin: 0 0 14px; padding-left: 20px; font-size: var(--text-base); line-height: 1.6; max-width: 70ch;
+  }
+  .scene-narration {
+    font-size: var(--text-base); line-height: 1.65; color: var(--muted); margin: 0 0 20px; max-width: 70ch;
+  }
+  .scene-nav-buttons { display: flex; gap: 10px; }
+
+  /* All sections accordion */
+  .accordion-list { display: flex; flex-direction: column; gap: 8px; }
+  .accordion-item {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; transition: border-color var(--trans);
+  }
+  .accordion-item.active { border-color: var(--cobalt); }
+  .accordion-head {
+    width: 100%; padding: 12px 16px; display: flex; justify-content: space-between;
+    align-items: center; border: none; background: transparent; cursor: pointer;
+    text-align: left;
+  }
+  .accordion-head:hover { background: var(--hover); }
+  .accordion-title {
+    margin: 0; font-family: var(--display); font-size: var(--text-sm); font-weight: 600; color: var(--ink); display: inline;
+  }
+  .accordion-body { padding: 0 16px 14px; font-size: var(--text-base); color: var(--muted); }
+  .accordion-body ul { margin: 6px 0 8px; padding-left: 18px; }
+
+  /* Glossary */
+  .glossary dl { margin: 0; display: grid; gap: 14px; }
+  .glossary dt { font-family: var(--display); font-weight: 700; font-size: var(--text-base); color: var(--ink); }
+  .glossary dd { margin: 0; font-size: var(--text-base); color: var(--muted); }
+
+  /* Chat panel in tab */
+  .chat-panel {
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px; box-shadow: var(--shadow);
+  }
+  .chat-log {
+    max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 12px; padding-right: 4px;
+  }
+  .chat-msg { padding: 9px 13px; border-radius: 6px; font-size: var(--text-base); line-height: 1.5; }
+  .chat-msg.user { background: var(--cobalt); color: #fff; align-self: flex-end; max-width: 85%; font-family: var(--display); }
+  .chat-msg.bot { background: var(--bg); color: var(--ink); border: 1px solid var(--line); align-self: flex-start; max-width: 90%; }
+  .chat-msg.hint { color: var(--muted); font-size: var(--text-sm); padding: 2px 0; }
+  .chat-form { display: flex; gap: 8px; }
+  .chat-form input { flex: 1; }
+
+  /* Right column: Chapters list */
+  .chapters-sidebar {
+    position: sticky; top: 24px; max-height: calc(100vh - 48px); display: flex; flex-direction: column;
+  }
+  .chapters-heading {
+    font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .scenes {
+    display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding-right: 4px; flex: 1;
+  }
+  .scene {
+    all: unset; box-sizing: border-box; display: grid; grid-template-columns: 28px 1fr auto;
+    align-items: baseline; gap: 10px; padding: 12px 14px; border-radius: var(--radius);
+    cursor: pointer; background: var(--paper); border-left: 3px solid transparent;
+    transition: all var(--trans);
+  }
+  .scene:hover { background: var(--hover); }
+  .scene:focus-visible { outline: 2px solid var(--cobalt); outline-offset: -2px; }
+  .scene.on {
+    border-left-color: var(--scene-on-border); background: var(--scene-on);
+  }
+  .scene .n { font-family: var(--display); font-size: var(--text-xs); font-weight: 700; color: var(--muted); }
+  .scene.on .n { color: var(--ink); }
+  .scene .t-box { min-width: 0; overflow: hidden; }
+  .scene .t {
+    font-family: var(--display); font-size: var(--text-sm); font-weight: 600; color: var(--ink);
+    line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; text-overflow: ellipsis; word-break: break-word;
+  }
+  .scene .s-source {
+    display: none; font-size: var(--text-xs); font-weight: 500; color: var(--muted); margin-top: 2px;
+  }
+  .scene:hover .s-source, .scene:focus-visible .s-source {
+    display: block;
+  }
+  .scene .time {
+    font-family: var(--display); font-size: var(--text-xs); font-weight: 500; color: var(--muted);
+    white-space: nowrap; margin-left: auto; align-self: baseline;
+  }
+  .scene.on .time { color: var(--ink); font-weight: 600; }
+
+  /* Responsiveness */
+  @media (max-width: 1024px) {
+    .result-main { grid-template-columns: 1fr; }
+    .chapters-sidebar { position: static; max-height: 360px; }
+    .upload-grid { grid-template-columns: 1fr; }
+    .how-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .wrap { padding: 0 20px; }
+    .options-card { grid-template-columns: 1fr; }
+    .action-row { gap: 8px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    header { padding: 14px 0; margin-bottom: 20px; }
+    .brand { font-size: var(--text-md); }
+    .brand-badge { font-size: var(--text-xs); padding: 1px 5px; }
+
+    .hero-section { padding: 8px 0 28px; }
+    .hero-title { font-size: var(--text-xl); line-height: 1.18; word-break: break-word; }
+    .hero-title br { display: none; }
+    .hero-subtitle { font-size: var(--text-base); }
+
+    .drop { min-height: 220px; padding: 24px 16px; }
+    .drop strong { font-size: var(--text-md); }
+
+    .paper-title { font-size: var(--text-lg); line-height: 1.2; word-break: break-word; }
+    .paper-summary { font-size: var(--text-base); }
+    .action-row { gap: 8px; }
+
+    .arxiv-box { flex-direction: column; }
+    .stepper { flex-wrap: wrap; }
+    .popover-box { width: 100%; min-width: 0; }
+
+    .scene { padding: 12px 14px; }
+    .scene .t { font-size: var(--text-sm); word-break: break-word; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand" id="home-brand" role="button" tabindex="0" aria-label="PaperExplainer home">
+      PaperExplainer <span class="brand-badge">24 FPS</span>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-ghost" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <!-- 1. Upload View -->
+  <div id="view-upload">
+    <section class="hero-section">
+      <span class="hero-badge">Research Paper Explainer</span>
+      <h1 class="hero-title">Drop in a research paper.<br> Get a clear explainer video.</h1>
+      <p class="hero-subtitle">Turn complex PDFs and arXiv links into 24 fps narrated visual breakdowns with auto-generated flowcharts, comparisons, subtitles, and downloadable study notes.</p>
+    </section>
+
+    <div class="upload-grid">
+      <label class="drop" id="drop">
+        <div class="drop-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <input type="file" id="file" accept="application/pdf,.pdf" aria-label="Upload PDF file">
+        <strong>Drop your research paper PDF here</strong>
+        <small>or click to browse from your device (up to 25 MB)</small>
+        <span class="btn-primary" aria-hidden="true">Choose PDF</span>
+      </label>
+
+      <div class="config-panel">
+        <div class="options-card">
+          <div class="field">
+            <label for="voice">Narrator Voice</label>
+            <select id="voice">
+              <option value="en-US-AriaNeural">US English — Aria (Female)</option>
+              <option value="en-US-GuyNeural">US English — Guy (Male)</option>
+              <option value="en-GB-SoniaNeural">UK English — Sonia (Female)</option>
+              <option value="en-GB-RyanNeural">UK English — Ryan (Male)</option>
+              <option value="en-IN-NeerjaNeural">Indian English — Neerja (Female)</option>
+              <option value="en-IN-PrabhatNeural">Indian English — Prabhat (Male)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="rate">Speed</label>
+            <select id="rate">
+              <option value="-15%">0.85x Slow</option>
+              <option value="+0%" selected>1.0x Normal</option>
+              <option value="+15%">1.15x Fast</option>
+              <option value="+25%">1.25x Faster</option>
+            </select>
+          </div>
+        </div>
+
+        <form class="arxiv-box" id="arxiv-form">
+          <input type="text" id="arxiv-input" placeholder="Or paste an arXiv link or ID (e.g. arxiv.org/abs/1706.03762)" aria-label="arXiv link or ID">
+          <button type="submit" class="btn-primary">Explain arXiv</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3-step How it works -->
+    <section class="how-section">
+      <div class="section-kicker">Pipeline</div>
+      <h2 class="section-title">How PaperExplainer works</h2>
+      <div class="how-grid">
+        <div class="how-step">
+          <div class="how-num">STEP 1</div>
+          <div class="how-title">Extract &amp; Filter</div>
+          <p class="how-desc">PyMuPDF extracts core sections and figures, filtering out related work, bibliographies, and appendix noise.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">STEP 2</div>
+          <div class="how-title">Script &amp; Diagrams</div>
+          <p class="how-desc">NVIDIA LLM crafts an intuitive script and designs animated diagrams (flowcharts, cycles, bar charts, comparisons).</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">STEP 3</div>
+          <div class="how-title">Narrate &amp; Animate</div>
+          <p class="how-desc">Edge-TTS records natural speech while Pillow and FFmpeg stream 24 fps ease-out scenes into a high-res MP4.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sample result demo preview -->
+    <section class="demo-section">
+      <div class="section-kicker">Preview</div>
+      <h2 class="section-title">Sample generated explainer</h2>
+      <div class="demo-frame">
+        <img class="demo-img" src="/demo/sample-preview.svg" alt="Sample video explainer frame placeholder" loading="lazy">
+        <div class="demo-caption">
+          <span>Demonstration of animated flowcharts and figure sync</span>
+          <span style="font-weight: 600;">frontend/demo/</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Previous papers -->
+    <section class="history" id="history-section" hidden>
+      <div class="history-head">
+        <h2>Previous Papers</h2>
+      </div>
+      <div class="history-grid" id="history-grid"></div>
+    </section>
+
+    <!-- Privacy Note -->
+    <div class="privacy-note">
+      <strong>Privacy &amp; Local Storage:</strong> All processing is done locally and via your configured NVIDIA API key. Uploaded files, generated MP4s, notes, and cache reside solely on your machine in the <code>jobs/</code> folder and can be deleted anytime with one click.
+    </div>
+
+    <footer>
+      PaperExplainer · Local-first Research Paper Video Explainer · Free &amp; Open Source
+    </footer>
+  </div>
+
+  <!-- 2. Working View (Named Steps Stepper) -->
+  <section id="view-working" class="working" hidden aria-live="polite">
+    <h2 class="working-heading">Making your video</h2>
+    <p class="working-sub">Analyzing the paper, generating animated scenes, and recording narration. You can keep this tab open.</p>
+    
+    <div class="stepper" id="stepper">
+      <div class="step-node active" data-step="1"><div class="step-bullet">1</div><span>Reading</span></div>
+      <div class="step-node" data-step="2"><div class="step-bullet">2</div><span>Understanding</span></div>
+      <div class="step-node" data-step="3"><div class="step-bullet">3</div><span>Writing script</span></div>
+      <div class="step-node" data-step="4"><div class="step-bullet">4</div><span>Drawing</span></div>
+      <div class="step-node" data-step="5"><div class="step-bullet">5</div><span>Narrating</span></div>
+      <div class="step-node" data-step="6"><div class="step-bullet">6</div><span>Finishing</span></div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="bar"></div>
+    </div>
+    <div class="step-meta">
+      <span id="step">Starting</span>
+      <span id="pct">0%</span>
+    </div>
+  </section>
+
+  <!-- 3. Error View -->
+  <section id="view-error" class="error" hidden role="alert">
+    <h2>Processing Failed</h2>
+    <p id="error-msg"></p>
+    <button type="button" class="btn-secondary" id="retry">Try another paper</button>
+  </section>
+
+  <!-- 4. Result View -->
+  <section id="view-result" class="result" hidden>
+    <!-- Paper title as a large H1 with one-line summary under it (no card around it) -->
+    <div class="paper-header">
+      <h1 class="paper-title" id="r-title"></h1>
+      <p class="paper-summary" id="r-summary"></p>
+
+      <!-- Slim action row -->
+      <div class="action-row">
+        <a class="btn-primary" id="download" download="paper-explained.mp4">Download video</a>
+
+        <!-- Download dropdown menu -->
+        <div class="dropdown-wrapper">
+          <button type="button" class="btn-secondary dropdown-trigger" id="download-menu-btn" aria-haspopup="true" aria-expanded="false">
+            Downloads <span class="caret">▾</span>
+          </button>
+          <div class="dropdown-menu" id="download-menu" role="menu" hidden>
+            <a class="dropdown-item" id="download-srt" download="subtitles.srt" role="menuitem">Download .srt subtitles</a>
+            <a class="dropdown-item" id="download-notes" download="paper-notes.md" role="menuitem">Download Markdown study notes</a>
+          </div>
+        </div>
+
+        <!-- Regenerate with popover style picker -->
+        <div class="dropdown-wrapper">
+          <button type="button" class="btn-secondary dropdown-trigger" id="regen-popover-btn" aria-haspopup="true" aria-expanded="false">
+            Regenerate style <span class="caret">▾</span>
+          </button>
+          <div class="popover-box" id="regen-popover" hidden>
+            <label for="regen-style" class="popover-label">Narration style</label>
+            <select id="regen-style" class="popover-select" aria-label="Regenerate style">
+              <option value="simpler">Simpler (beginner-friendly)</option>
+              <option value="technical">More technical (methods &amp; metrics)</option>
+              <option value="short">Very short (60s summary)</option>
+              <option value="default">Standard (balanced)</option>
+            </select>
+            <button type="button" class="btn-primary" id="regen-btn" style="width: 100%;">Apply &amp; Regenerate</button>
+          </div>
+        </div>
+
+        <!-- Text button (secondary per Issue 3) -->
+        <button type="button" class="btn-secondary" id="again">Explain another paper</button>
+      </div>
+    </div>
+
+    <div class="result-main">
+      <!-- Left Column: Video Hero + Timeline + Tabs -->
+      <div class="video-column">
+        <div class="hero-video-wrap">
+          <video id="player" controls preload="metadata" aria-label="Explainer video player">
+            <track id="sub-track" kind="subtitles" srclang="en" label="English" default>
+          </video>
+        </div>
+        
+        <!-- Timeline chapter markers bar -->
+        <div class="chapter-timeline" id="chapter-timeline" role="slider" aria-label="Chapter progress timeline"></div>
+
+        <!-- Tabs beneath video -->
+        <div class="tabs-nav" role="tablist" aria-label="Paper details">
+          <button type="button" class="tab-btn active" role="tab" id="tab-btn-explanation" aria-selected="true" aria-controls="tab-pane-explanation">Explanation</button>
+          <button type="button" class="tab-btn" role="tab" id="tab-btn-all" aria-selected="false" aria-controls="tab-pane-all">All sections</button>
+          <button type="button" class="tab-btn" role="tab" id="tab-btn-glossary" aria-selected="false" aria-controls="tab-pane-glossary">Glossary</button>
+          <button type="button" class="tab-btn" role="tab" id="tab-btn-ask" aria-selected="false" aria-controls="tab-pane-ask">Ask the paper</button>
+        </div>
+
+        <!-- Tab 1: Current Explanation -->
+        <div class="tab-pane" id="tab-pane-explanation" role="tabpanel" aria-labelledby="tab-btn-explanation">
+          <div class="scene-kicker" id="active-scene-kicker">Chapter 1 of 7 · 0:00</div>
+          <h2 class="active-scene-title" id="active-scene-title"></h2>
+          <div class="scene-source" id="active-scene-source" hidden></div>
+          <ul class="scene-bullets" id="active-scene-bullets"></ul>
+          <p class="scene-narration" id="active-scene-narration"></p>
+          <div class="scene-nav-buttons">
+            <button type="button" class="btn-ghost" id="btn-prev-scene">← Previous chapter</button>
+            <button type="button" class="btn-ghost" id="btn-next-scene">Next chapter →</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: All sections accordion (collapsed by default) -->
+        <div class="tab-pane" id="tab-pane-all" role="tabpanel" aria-labelledby="tab-btn-all" hidden>
+          <h2 class="visually-hidden">All Sections Breakdown</h2>
+          <div class="accordion-list" id="all-sections-accordion"></div>
+        </div>
+
+        <!-- Tab 3: Glossary -->
+        <div class="tab-pane" id="tab-pane-glossary" role="tabpanel" aria-labelledby="tab-btn-glossary" hidden>
+          <h2 class="visually-hidden">Key Glossary Terms</h2>
+          <div class="glossary" id="glossary">
+            <dl id="terms"></dl>
+          </div>
+        </div>
+
+        <!-- Tab 4: Ask the paper -->
+        <div class="tab-pane" id="tab-pane-ask" role="tabpanel" aria-labelledby="tab-btn-ask" hidden>
+          <h2 class="visually-hidden">Ask the Paper</h2>
+          <div class="chat-panel" id="chat-panel" role="region" aria-label="Ask about this paper">
+            <div class="chat-log" id="chat-log" aria-live="polite"></div>
+            <form class="chat-form" id="chat-form">
+              <input type="text" id="chat-input" placeholder="Ask a question about methods, datasets, or limits..." aria-label="Question about this paper" autocomplete="off">
+              <button type="submit" class="btn-secondary" id="chat-send">Ask</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Compact Sticky Chapters List -->
+      <aside class="chapters-sidebar" aria-label="Chapters">
+        <h2 class="chapters-heading">
+          <span>Chapters</span>
+          <span class="chapters-count" id="chapters-count"></span>
+        </h2>
+        <div class="scenes" id="scenes" role="navigation" aria-label="Chapters list"></div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const views = ["upload", "working", "error", "result"];
+function show(name) {
+  views.forEach(v => $("view-" + v).hidden = v !== name);
+  if (name === "upload") loadHistory();
+}
+
+function h(tag, props = {}, ...kids) {
+  const node = document.createElement(tag);
+  Object.assign(node, props);
+  kids.forEach(k => node.append(k));
+  return node;
+}
+
+let timer = null;
+let currentJobId = null;
+let chatHistory = [];
+let currentScenes = [];
+let currentActiveChapter = 1;
+
+/**
+ * Returns the 1-based active chapter index for the given currentTime.
+ * Uses chapter start times, supporting exact boundary times and clamping.
+ */
+function getActiveChapter(currentTime, scenes = currentScenes) {
+  if (!scenes || scenes.length === 0) return 1;
+  let chapter = 1;
+  for (let i = 0; i < scenes.length; i++) {
+    if (currentTime >= scenes[i].start) {
+      chapter = i + 1;
+    }
+  }
+  return Math.min(Math.max(chapter, 1), scenes.length);
+}
+
+/* ---------- theme handling (follows system setting by default) ---------- */
+function getInitialTheme() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const qTheme = urlParams.get("theme");
+  if (qTheme === "dark" || qTheme === "light") return qTheme;
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  $("theme-toggle").textContent = theme === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem("theme", theme);
+}
+
+applyTheme(getInitialTheme());
+
+if (window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+    if (!localStorage.getItem("theme_explicit")) {
+      applyTheme(e.matches ? "dark" : "light");
+    }
+  });
+}
+
+$("theme-toggle").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  localStorage.setItem("theme_explicit", "true");
+  applyTheme(next);
+});
+
+$("home-brand").addEventListener("click", reset);
+$("home-brand").addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); reset(); }
+});
+
+/* ---------- dropdown & popover helpers ---------- */
+function setupDropdown(btnId, boxId) {
+  const btn = $(btnId), box = $(boxId);
+  btn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    const isHidden = box.hidden;
+    closeAllMenus();
+    box.hidden = !isHidden;
+    btn.setAttribute("aria-expanded", String(!isHidden));
+  });
+}
+setupDropdown("download-menu-btn", "download-menu");
+setupDropdown("regen-popover-btn", "regen-popover");
+
+function closeAllMenus() {
+  $("download-menu").hidden = true;
+  $("download-menu-btn").setAttribute("aria-expanded", "false");
+  $("regen-popover").hidden = true;
+  $("regen-popover-btn").setAttribute("aria-expanded", "false");
+}
+document.addEventListener("click", closeAllMenus);
+$("regen-popover").addEventListener("click", (e) => e.stopPropagation());
+
+/* ---------- tabs ---------- */
+const tabNames = ["explanation", "all", "glossary", "ask"];
+tabNames.forEach(name => {
+  $(`tab-btn-${name}`).addEventListener("click", () => switchTab(name));
+});
+
+function switchTab(name) {
+  tabNames.forEach(n => {
+    const btn = $(`tab-btn-${n}`), pane = $(`tab-pane-${n}`);
+    const isActive = n === name;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", String(isActive));
+    pane.hidden = !isActive;
+  });
+}
+
+/* ---------- upload & arXiv ---------- */
+const drop = $("drop"), fileInput = $("file");
+["dragenter", "dragover"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", ev => { if (ev.dataTransfer.files[0]) upload(ev.dataTransfer.files[0]); });
+fileInput.addEventListener("change", () => { if (fileInput.files[0]) upload(fileInput.files[0]); });
+
+async function upload(file) {
+  if (!file.name.toLowerCase().endsWith(".pdf")) return fail("Please choose a PDF file.");
+  setProgress("Reading PDF", 3);
+  show("working");
+  try {
+    const body = new FormData();
+    body.append("file", file);
+    body.append("voice", $("voice").value);
+    body.append("rate", $("rate").value);
+    const res = await fetch("/api/upload", { method: "POST", body });
+    const data = await res.json();
+    if (!res.ok) return fail(data.detail || "Upload failed.");
+    poll(data.job_id);
+  } catch (e) {
+    fail("Could not reach the server. Is it still running?");
+  }
+}
+
+$("arxiv-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const arxiv = $("arxiv-input").value.trim();
+  if (!arxiv) return fail("Please enter an arXiv link or paper ID.");
+  setProgress("Downloading PDF from arXiv", 3);
+  show("working");
+  try {
+    const res = await fetch("/api/arxiv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        arxiv,
+        voice: $("voice").value,
+        rate: $("rate").value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) return fail(data.detail || "Could not fetch that arXiv paper.");
+    poll(data.job_id);
+  } catch (e) {
+    fail("Could not reach the server. Is it still running?");
+  }
+});
+
+/* ---------- history ---------- */
+async function loadHistory() {
+  try {
+    const res = await fetch("/api/jobs");
+    if (!res.ok) return;
+    const { jobs } = await res.json();
+    const grid = $("history-grid");
+    grid.replaceChildren();
+    $("history-section").hidden = jobs.length === 0;
+    jobs.forEach(item => {
+      const delBtn = h("button", {
+        type: "button",
+        className: "btn-ghost danger",
+        textContent: "Delete",
+      });
+      delBtn.setAttribute("aria-label", "Delete " + item.title);
+      delBtn.addEventListener("click", async (ev) => {
+        ev.stopPropagation();
+        const delRes = await fetch("/api/jobs/" + item.job_id, { method: "DELETE" });
+        if (!delRes.ok) {
+          const err = await delRes.json().catch(() => ({}));
+          alert(err.detail || "Could not delete job.");
+          return;
+        }
+        loadHistory();
+      });
+
+      const card = h("div", { className: "h-card", tabIndex: 0, role: "button" },
+        h("p", { className: "h-title", textContent: item.title }),
+        h("p", { className: "h-summary", textContent: item.summary || "" }),
+        h("div", { className: "h-foot" },
+          h("span", { textContent: item.date }),
+          delBtn
+        )
+      );
+      card.setAttribute("aria-label", "Open " + item.title);
+      card.addEventListener("click", () => openJob(item.job_id));
+      card.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openJob(item.job_id); }
+      });
+      grid.append(card);
+    });
+  } catch (e) {
+    /* ignore history errors */
+  }
+}
+
+async function openJob(jobId) {
+  try {
+    const res = await fetch("/api/jobs/" + jobId);
+    const job = await res.json();
+    if (!res.ok) return fail(job.detail || "Could not open that paper.");
+    if (job.status === "done") showResult(job.result, jobId);
+    else if (job.status === "running") { show("working"); poll(jobId); }
+    else fail(job.message || "That job had an error.");
+  } catch (e) {
+    fail("Could not load job from the server.");
+  }
+}
+
+/* ---------- progress stepper ---------- */
+function setProgress(stepText, pct) {
+  $("step").textContent = stepText;
+  $("pct").textContent = pct + "%";
+  $("bar").style.width = pct + "%";
+
+  const sLower = stepText.toLowerCase();
+  let stepIndex = 1;
+  if (sLower.includes("understand") || sLower.includes("summariz")) stepIndex = 2;
+  else if (sLower.includes("script") || sLower.includes("writ")) stepIndex = 3;
+  else if (sLower.includes("slide") || sLower.includes("animat") || sLower.includes("draw")) stepIndex = 4;
+  else if (sLower.includes("narrat") || sLower.includes("record") || sLower.includes("voice")) stepIndex = 5;
+  else if (pct >= 90 || sLower.includes("put") || sLower.includes("concat")) stepIndex = 6;
+
+  document.querySelectorAll(".step-node").forEach((node, i) => {
+    const nodeIdx = i + 1;
+    node.classList.toggle("active", nodeIdx === stepIndex);
+    node.classList.toggle("done", nodeIdx < stepIndex);
+  });
+}
+
+function poll(jobId) {
+  clearInterval(timer);
+  const tick = async () => {
+    try {
+      const res = await fetch("/api/jobs/" + jobId);
+      const job = await res.json();
+      if (job.status === "running") setProgress(job.step, job.progress);
+      else if (job.status === "done") { clearInterval(timer); showResult(job.result, jobId); }
+      else { clearInterval(timer); fail(job.message || job.detail || "Something went wrong."); }
+    } catch (e) {
+      clearInterval(timer);
+      fail("Lost connection to the server.");
+    }
+  };
+  tick();
+  timer = setInterval(tick, 1500);
+}
+
+function fail(message) {
+  clearInterval(timer);
+  $("error-msg").textContent = message;
+  show("error");
+}
+
+/* ---------- result rendering ---------- */
+function fmt(sec) {
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ":" + String(s).padStart(2, "0");
+}
+
+function showResult(r, jobId) {
+  currentJobId = jobId;
+  chatHistory = [];
+  currentScenes = r.scenes || [];
+  currentActiveChapter = 1;
+
+  const player = $("player");
+  player.src = r.video;
+  const track = $("sub-track");
+  track.src = r.vtt || "";
+  player.onloadedmetadata = () => {
+    if (player.textTracks && player.textTracks[0]) {
+      player.textTracks[0].mode = "showing";
+    }
+  };
+
+  $("download").href = r.video;
+  $("download-srt").href = r.srt || "#";
+  $("download-srt").hidden = !r.srt;
+  $("download-notes").href = r.notes || "#";
+  $("download-notes").hidden = !r.notes;
+  $("r-title").textContent = r.title;
+  $("r-summary").textContent = r.summary;
+
+  const total = currentScenes.length;
+  $("chapters-count").textContent = `(${total})`;
+
+  // Render chapters sidebar (compact: number, title, timestamp, source)
+  const list = $("scenes");
+  list.replaceChildren();
+  const buttons = currentScenes.map((s, i) => {
+    const chapterNum = i + 1;
+    const titleKids = [h("span", { className: "t", textContent: s.title })];
+    if (s.source) {
+      titleKids.push(h("span", { className: "s-source", textContent: s.source }));
+    }
+    const btn = h("button", { type: "button", className: "scene" },
+      h("span", { className: "n", textContent: String(chapterNum).padStart(2, "0") }),
+      h("div", { className: "t-box" }, ...titleKids),
+      h("span", { className: "time", textContent: fmt(s.start) })
+    );
+    btn.setAttribute("aria-label", `Chapter ${chapterNum}: ${s.title}${s.source ? ' (' + s.source + ')' : ''} at ${fmt(s.start)}`);
+    btn.addEventListener("click", () => seekChapter(chapterNum));
+    list.append(btn);
+    return btn;
+  });
+
+  // Render timeline markers bar under video
+  const timeline = $("chapter-timeline");
+  timeline.replaceChildren();
+  const segments = currentScenes.map((s, i) => {
+    const chapterNum = i + 1;
+    const seg = h("div", { className: "timeline-segment" });
+    seg.title = `Chapter ${chapterNum}: ${s.title} (${fmt(s.start)})`;
+    seg.setAttribute("aria-label", `Chapter ${chapterNum}: ${s.title}`);
+    seg.addEventListener("click", () => seekChapter(chapterNum));
+    timeline.append(seg);
+    return seg;
+  });
+
+  // Render all sections accordion (collapsed by default)
+  const accordion = $("all-sections-accordion");
+  accordion.replaceChildren();
+  const accordionItems = currentScenes.map((s, i) => {
+    const chapterNum = i + 1;
+    const bulletsList = h("ul", {}, ...(s.bullets || []).map(b => h("li", { textContent: b })));
+    const bodyKids = [];
+    if (s.source) {
+      bodyKids.push(h("div", { className: "scene-source-tag", textContent: "Source: " + s.source }));
+    }
+    bodyKids.push(bulletsList);
+    bodyKids.push(h("p", { textContent: s.narration || "", style: "margin: 0;" }));
+    const body = h("div", { className: "accordion-body", hidden: true }, ...bodyKids);
+    const head = h("button", { type: "button", className: "accordion-head" },
+      h("div", {},
+        h("h3", { className: "accordion-title", textContent: `${chapterNum}. ${s.title}` }),
+        s.source ? h("span", { className: "s-source", textContent: s.source }) : null
+      ),
+      h("span", { style: "font-weight: normal; color: var(--muted); font-size: var(--text-sm);", textContent: fmt(s.start) })
+    );
+    head.addEventListener("click", () => {
+      const isHidden = body.hidden;
+      body.hidden = !isHidden;
+      seekChapter(chapterNum);
+    });
+    const item = h("div", { className: "accordion-item" }, head, body);
+    accordion.append(item);
+    return item;
+  });
+
+  function updateActiveChapter(chapterNum) {
+    const totalChapters = currentScenes.length;
+    if (totalChapters === 0) return;
+    const chap = Math.min(Math.max(chapterNum, 1), totalChapters);
+    currentActiveChapter = chap;
+    const idx = chap - 1;
+    const cur = currentScenes[idx];
+    if (!cur) return;
+
+    // 1. Update Explanation Tab
+    $("active-scene-kicker").textContent = `Chapter ${chap} of ${totalChapters} · ${fmt(cur.start)}`;
+    $("active-scene-title").textContent = cur.title;
+    const srcEl = $("active-scene-source");
+    if (srcEl) {
+      if (cur.source) {
+        srcEl.textContent = "Source: " + cur.source;
+        srcEl.hidden = false;
+      } else {
+        srcEl.hidden = true;
+      }
+    }
+    const bulletsUl = $("active-scene-bullets");
+    bulletsUl.replaceChildren(...(cur.bullets || []).map(b => h("li", { textContent: b })));
+    $("active-scene-narration").textContent = cur.narration || "";
+
+    // Prev / Next button state
+    $("btn-prev-scene").disabled = chap <= 1;
+    $("btn-next-scene").disabled = chap >= totalChapters;
+
+    // 2. Highlight Chapters Sidebar
+    buttons.forEach((b, i) => {
+      const isOn = (i + 1) === chap;
+      b.classList.toggle("on", isOn);
+      if (isOn) {
+        b.setAttribute("aria-current", "step");
+        b.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } else {
+        b.removeAttribute("aria-current");
+      }
+    });
+
+    // 3. Update timeline segments (video chapter indicator)
+    segments.forEach((seg, i) => {
+      seg.classList.toggle("active", (i + 1) === chap);
+      seg.classList.toggle("passed", (i + 1) < chap);
+    });
+
+    // 4. Update accordion highlights
+    accordionItems.forEach((item, i) => {
+      item.classList.toggle("active", (i + 1) === chap);
+    });
+  }
+
+  function seekChapter(chapterNum) {
+    const totalChapters = currentScenes.length;
+    const chap = Math.min(Math.max(chapterNum, 1), totalChapters);
+    const idx = chap - 1;
+    if (currentScenes[idx]) {
+      player.currentTime = currentScenes[idx].start + 0.05;
+      player.play();
+      updateActiveChapter(chap);
+    }
+  }
+
+  $("btn-prev-scene").onclick = () => seekChapter(currentActiveChapter - 1);
+  $("btn-next-scene").onclick = () => seekChapter(currentActiveChapter + 1);
+
+  player.ontimeupdate = () => {
+    const activeChap = getActiveChapter(player.currentTime);
+    if (activeChap !== currentActiveChapter) {
+      updateActiveChapter(activeChap);
+    }
+  };
+
+  updateActiveChapter(1);
+
+  // Glossary
+  const terms = $("terms");
+  terms.replaceChildren();
+  (r.glossary || []).forEach(g => {
+    terms.append(h("dt", { textContent: g.term }), h("dd", { textContent: g.meaning }));
+  });
+  $("tab-btn-glossary").hidden = (r.glossary || []).length === 0;
+
+  // Chat panel reset
+  const chatLog = $("chat-log");
+  chatLog.replaceChildren(
+    h("div", {
+      className: "chat-msg hint",
+      textContent: "Ask questions about this paper's methods, results, or limits. Answers are grounded in the paper text.",
+    })
+  );
+  $("chat-input").value = "";
+
+  switchTab("explanation");
+  show("result");
+}
+
+/* ---------- chat ---------- */
+$("chat-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  if (!currentJobId) return;
+  const input = $("chat-input");
+  const question = input.value.trim();
+  if (!question) return;
+
+  const log = $("chat-log");
+  const sendBtn = $("chat-send");
+  input.value = "";
+  sendBtn.disabled = true;
+
+  log.append(h("div", { className: "chat-msg user", textContent: question }));
+  const thinking = h("div", { className: "chat-msg bot", textContent: "Thinking…" });
+  log.append(thinking);
+  log.scrollTop = log.scrollHeight;
+
+  try {
+    const res = await fetch("/api/jobs/" + currentJobId + "/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, history: chatHistory }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      thinking.textContent = data.detail || "Could not answer that question.";
+    } else {
+      thinking.textContent = data.answer;
+      chatHistory.push({ role: "user", content: question }, { role: "assistant", content: data.answer });
+    }
+  } catch (e) {
+    thinking.textContent = "Could not reach the server. Please try again.";
+  } finally {
+    sendBtn.disabled = false;
+    log.scrollTop = log.scrollHeight;
+  }
+});
+
+/* ---------- regenerate ---------- */
+$("regen-btn").addEventListener("click", async () => {
+  if (!currentJobId) return;
+  closeAllMenus();
+  const style = $("regen-style").value;
+  const player = $("player");
+  player.pause();
+  setProgress("Regenerating (" + style + " style)", 3);
+  show("working");
+  try {
+    const res = await fetch("/api/jobs/" + currentJobId + "/regenerate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        style,
+        voice: $("voice").value,
+        rate: $("rate").value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) return fail(data.detail || "Could not regenerate video.");
+    poll(data.job_id);
+  } catch (e) {
+    fail("Could not reach the server. Is it still running?");
+  }
+});
+
+function reset() {
+  clearInterval(timer);
+  const player = $("player");
+  player.pause();
+  player.removeAttribute("src");
+  $("sub-track").removeAttribute("src");
+  fileInput.value = "";
+  $("arxiv-input").value = "";
+  show("upload");
+}
+$("retry").addEventListener("click", reset);
+$("again").addEventListener("click", reset);
+const params = new URLSearchParams(window.location.search);
+const initialJob = params.get("job") || window.location.hash.replace("#", "");
+if (initialJob) {
+  openJob(initialJob);
+} else {
+  loadHistory();
+}
+</script>
+</body>
+</html>
