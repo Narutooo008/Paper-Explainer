@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}} — PaperExplainer</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="/" class="brand" aria-label="PaperExplainer home">
+      PaperExplainer <span class="brand-badge">24 FPS</span>
+    </a>
+    <nav class="header-nav" aria-label="Main Navigation">
+      <a href="/how-it-works" class="nav-link">How it works</a>
+      <a href="/about" class="nav-link">About</a>
+      <a href="/privacy" class="nav-link">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="btn-ghost" id="theme-toggle" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <!-- Result View -->
+  <section id="view-result" class="result">
+    <div class="paper-header">
+      <h1 class="paper-title" id="r-title">{{TITLE}}</h1>
+      <p class="paper-summary" id="r-summary">{{SUMMARY}}</p>
+
+      <div class="action-row">
+        <a class="btn-primary" id="download" download="paper-explained.mp4">Download video</a>
+
+        <!-- Download dropdown menu -->
+        <div class="dropdown-wrapper">
+          <button type="button" class="btn-secondary dropdown-trigger" id="download-menu-btn" aria-haspopup="true" aria-expanded="false">
+            Downloads <span class="caret">▾</span>
+          </button>
+          <div class="dropdown-menu" id="download-menu" role="menu" hidden>
+            <a class="dropdown-item" id="download-srt" download="subtitles.srt" role="menuitem">Download .srt subtitles</a>
+            <a class="dropdown-item" id="download-notes" download="paper-notes.md" role="menuitem">Download Markdown study notes</a>
+          </div>
+        </div>
+
+        <!-- Regenerate with popover style picker -->
+        <div class="dropdown-wrapper">
+          <button type="button" class="btn-secondary dropdown-trigger" id="regen-popover-btn" aria-haspopup="true" aria-expanded="false">
+            Regenerate style <span class="caret">▾</span>
+          </button>
+          <div class="popover-box" id="regen-popover" hidden>
+            <label for="regen-style" class="popover-label">Narration style</label>
+            <select id="regen-style" class="popover-select" aria-label="Regenerate style">
+              <option value="simpler">Simpler (beginner-friendly)</option>
+              <option value="technical">More technical (methods &amp; metrics)</option>
+              <option value="short">Very short (60s summary)</option>
+              <option value="default" selected>Standard (balanced)</option>
+            </select>
+            <button type="button" class="btn-primary" id="regen-btn" style="width: 100%;">Apply &amp; Regenerate</button>
+          </div>
+        </div>
+
+        <a href="/" class="btn-secondary" id="again">Explain another paper</a>
+      </div>
+    </div>
+
+    <!-- Working banner if regenerating -->
+    <div id="regen-status" class="privacy-note" style="margin: 16px 0;" hidden>
+      <strong>Regenerating explainer:</strong> <span id="regen-msg">Starting new job…</span>
+    </div>
+
+    <div class="result-main">
+      <!-- Left Column: Video Hero + Timeline + Tabs -->
+      <div class="video-column">
+        <div class="hero-video-wrap">
+          <video id="player" controls preload="metadata" aria-label="Explainer video player">
+            <track id="sub-track" kind="subtitles" srclang="en" label="English" default>
+          </video>
+        </div>
+        
+        <!-- Timeline chapter markers bar -->
+        <div class="chapter-timeline" id="chapter-timeline" role="slider" aria-label="Chapter progress timeline"></div>
+
+        <!-- Tabs beneath video -->
+        <div class="tabs-nav" role="tablist" aria-label="Paper details">
+          <button type="button" class="tab-btn active" role="tab" id="tab-btn-explanation" aria-selected="true" aria-controls="tab-pane-explanation">Explanation</button>
+          <button type="button" class="tab-btn" role="tab" id="tab-btn-all" aria-selected="false" aria-controls="tab-pane-all">All sections</button>
+          <button type="button" class="tab-btn" role="tab" id="tab-btn-glossary" aria-selected="false" aria-controls="tab-pane-glossary">Glossary</button>
+          <button type="button" class="tab-btn" role="tab" id="tab-btn-ask" aria-selected="false" aria-controls="tab-pane-ask">Ask the paper</button>
+        </div>
+
+        <div class="tabs-content">
+          <!-- Tab 1: Explanation (synced to current scene) -->
+          <div class="tab-pane active" id="tab-pane-explanation" role="tabpanel" aria-labelledby="tab-btn-explanation">
+            <div class="explanation-card">
+              <div class="explanation-meta-row">
+                <span class="active-scene-kicker" id="active-scene-kicker">Chapter 1</span>
+                <span class="scene-source-tag" id="active-scene-source" hidden></span>
+              </div>
+              <h2 class="active-scene-title" id="active-scene-title"></h2>
+              <ul class="active-scene-bullets" id="active-scene-bullets"></ul>
+              <div class="active-scene-narration-wrap">
+                <div class="narration-label">Spoken Narration</div>
+                <p class="active-scene-narration" id="active-scene-narration"></p>
+              </div>
+              <div class="scene-nav-buttons">
+                <button type="button" class="btn-ghost" id="btn-prev-scene" aria-label="Previous chapter">← Previous chapter</button>
+                <button type="button" class="btn-ghost" id="btn-next-scene" aria-label="Next chapter">Next chapter →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: All sections (compact accordion) -->
+          <div class="tab-pane" id="tab-pane-all" role="tabpanel" aria-labelledby="tab-btn-all" hidden>
+            <h2 class="sr-only">All Sections</h2>
+            <div class="accordion" id="all-sections-accordion"></div>
+          </div>
+
+          <!-- Tab 3: Glossary -->
+          <div class="tab-pane" id="tab-pane-glossary" role="tabpanel" aria-labelledby="tab-btn-glossary" hidden>
+            <h2 class="sr-only">Glossary</h2>
+            <dl class="terms" id="terms"></dl>
+          </div>
+
+          <!-- Tab 4: Ask the paper -->
+          <div class="tab-pane" id="tab-pane-ask" role="tabpanel" aria-labelledby="tab-btn-ask" hidden>
+            <h2 class="sr-only">Ask the paper</h2>
+            <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
+            <form class="chat-row" id="chat-form">
+              <input type="text" id="chat-input" placeholder="Ask about methods, metrics, findings or limitations…" aria-label="Ask a question about this paper">
+              <button type="submit" class="btn-secondary" id="chat-send">Ask</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Compact Sticky Chapters List -->
+      <aside class="chapters-sidebar" aria-label="Chapters">
+        <h2 class="chapters-heading">
+          <span>Chapters</span>
+          <span class="chapters-count" id="chapters-count"></span>
+        </h2>
+        <div class="scenes" id="scenes" role="navigation" aria-label="Chapters list"></div>
+      </aside>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a> ·
+      <a href="/how-it-works">How it works</a> ·
+      <a href="/about">About</a> ·
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="footer-copy">PaperExplainer · Local-first Research Paper Video Explainer · Free &amp; Open Source</p>
+  </footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const jobId = "{{JOB_ID}}";
+
+function h(tag, props = {}, ...kids) {
+  const node = document.createElement(tag);
+  Object.assign(node, props);
+  kids.forEach(k => {
+    if (k) node.append(k);
+  });
+  return node;
+}
+
+let chatHistory = [];
+let currentScenes = [];
+let currentActiveChapter = 1;
+
+/**
+ * Returns the 1-based active chapter index for the given currentTime.
+ */
+function getActiveChapter(currentTime, scenes = currentScenes) {
+  if (!scenes || scenes.length === 0) return 1;
+  let chapter = 1;
+  for (let i = 0; i < scenes.length; i++) {
+    if (currentTime >= scenes[i].start) {
+      chapter = i + 1;
+    }
+  }
+  return Math.min(Math.max(chapter, 1), scenes.length);
+}
+
+/* ---------- theme handling ---------- */
+function getInitialTheme() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const qTheme = urlParams.get("theme");
+  if (qTheme === "dark" || qTheme === "light") return qTheme;
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = $("theme-toggle");
+  if (btn) btn.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+  localStorage.setItem("theme", theme);
+}
+
+applyTheme(getInitialTheme());
+
+if (window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+    if (!localStorage.getItem("theme_explicit")) {
+      applyTheme(e.matches ? "dark" : "light");
+    }
+  });
+}
+
+$("theme-toggle").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  localStorage.setItem("theme_explicit", "true");
+  applyTheme(next);
+});
+
+/* ---------- dropdown & popover helpers ---------- */
+function setupDropdown(btnId, boxId) {
+  const btn = $(btnId), box = $(boxId);
+  btn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    const isHidden = box.hidden;
+    closeAllMenus();
+    box.hidden = !isHidden;
+    btn.setAttribute("aria-expanded", String(!isHidden));
+  });
+}
+setupDropdown("download-menu-btn", "download-menu");
+setupDropdown("regen-popover-btn", "regen-popover");
+
+function closeAllMenus() {
+  $("download-menu").hidden = true;
+  $("download-menu-btn").setAttribute("aria-expanded", "false");
+  $("regen-popover").hidden = true;
+  $("regen-popover-btn").setAttribute("aria-expanded", "false");
+}
+document.addEventListener("click", closeAllMenus);
+$("regen-popover").addEventListener("click", (e) => e.stopPropagation());
+
+/* ---------- tabs ---------- */
+const tabNames = ["explanation", "all", "glossary", "ask"];
+tabNames.forEach(name => {
+  $(`tab-btn-${name}`).addEventListener("click", () => switchTab(name));
+});
+
+function switchTab(name) {
+  tabNames.forEach(n => {
+    const btn = $(`tab-btn-${n}`), pane = $(`tab-pane-${n}`);
+    const isActive = n === name;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", String(isActive));
+    pane.hidden = !isActive;
+  });
+}
+
+function fmt(sec) {
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ":" + String(s).padStart(2, "0");
+}
+
+function showResult(r) {
+  currentScenes = r.scenes || [];
+  currentActiveChapter = 1;
+
+  const player = $("player");
+  player.src = r.video;
+  const track = $("sub-track");
+  track.src = r.vtt || "";
+  player.onloadedmetadata = () => {
+    if (player.textTracks && player.textTracks[0]) {
+      player.textTracks[0].mode = "showing";
+    }
+  };
+
+  $("download").href = r.video;
+  $("download-srt").href = r.srt || "#";
+  $("download-srt").hidden = !r.srt;
+  $("download-notes").href = r.notes || "#";
+  $("download-notes").hidden = !r.notes;
+  $("r-title").textContent = r.title;
+  $("r-summary").textContent = r.summary;
+
+  const total = currentScenes.length;
+  $("chapters-count").textContent = `(${total})`;
+
+  const list = $("scenes");
+  list.replaceChildren();
+  const buttons = currentScenes.map((s, i) => {
+    const chapterNum = i + 1;
+    const titleKids = [h("span", { className: "t", textContent: s.title })];
+    if (s.source) {
+      titleKids.push(h("span", { className: "s-source", textContent: s.source }));
+    }
+    const btn = h("button", { type: "button", className: "scene" },
+      h("span", { className: "n", textContent: String(chapterNum).padStart(2, "0") }),
+      h("div", { className: "t-box" }, ...titleKids),
+      h("span", { className: "time", textContent: fmt(s.start) })
+    );
+    btn.setAttribute("aria-label", `Chapter ${chapterNum}: ${s.title}${s.source ? ' (' + s.source + ')' : ''} at ${fmt(s.start)}`);
+    btn.addEventListener("click", () => seekChapter(chapterNum));
+    list.append(btn);
+    return btn;
+  });
+
+  const timeline = $("chapter-timeline");
+  timeline.replaceChildren();
+  const segments = currentScenes.map((s, i) => {
+    const chapterNum = i + 1;
+    const seg = h("div", { className: "timeline-segment" });
+    seg.title = `Chapter ${chapterNum}: ${s.title} (${fmt(s.start)})`;
+    seg.setAttribute("aria-label", `Chapter ${chapterNum}: ${s.title}`);
+    seg.addEventListener("click", () => seekChapter(chapterNum));
+    timeline.append(seg);
+    return seg;
+  });
+
+  const accordion = $("all-sections-accordion");
+  accordion.replaceChildren();
+  const accordionItems = currentScenes.map((s, i) => {
+    const chapterNum = i + 1;
+    const bulletsList = h("ul", {}, ...(s.bullets || []).map(b => h("li", { textContent: b })));
+    const bodyKids = [];
+    if (s.source) {
+      bodyKids.push(h("div", { className: "scene-source-tag", textContent: "Source: " + s.source }));
+    }
+    bodyKids.push(bulletsList);
+    bodyKids.push(h("p", { textContent: s.narration || "", style: "margin: 0;" }));
+    const body = h("div", { className: "accordion-body", hidden: true }, ...bodyKids);
+    const head = h("button", { type: "button", className: "accordion-head" },
+      h("div", {},
+        h("h3", { className: "accordion-title", textContent: `${chapterNum}. ${s.title}` }),
+        s.source ? h("span", { className: "s-source", textContent: s.source }) : null
+      ),
+      h("span", { style: "font-weight: normal; color: var(--muted); font-size: var(--text-sm);", textContent: fmt(s.start) })
+    );
+    head.addEventListener("click", () => {
+      const isHidden = body.hidden;
+      body.hidden = !isHidden;
+      seekChapter(chapterNum);
+    });
+    const item = h("div", { className: "accordion-item" }, head, body);
+    accordion.append(item);
+    return item;
+  });
+
+  function updateActiveChapter(chapterNum) {
+    const totalChapters = currentScenes.length;
+    if (totalChapters === 0) return;
+    const chap = Math.min(Math.max(chapterNum, 1), totalChapters);
+    currentActiveChapter = chap;
+    const idx = chap - 1;
+    const cur = currentScenes[idx];
+    if (!cur) return;
+
+    $("active-scene-kicker").textContent = `Chapter ${chap} of ${totalChapters} · ${fmt(cur.start)}`;
+    $("active-scene-title").textContent = cur.title;
+    const srcEl = $("active-scene-source");
+    if (srcEl) {
+      if (cur.source) {
+        srcEl.textContent = "Source: " + cur.source;
+        srcEl.hidden = false;
+      } else {
+        srcEl.hidden = true;
+      }
+    }
+    const bulletsUl = $("active-scene-bullets");
+    bulletsUl.replaceChildren(...(cur.bullets || []).map(b => h("li", { textContent: b })));
+    $("active-scene-narration").textContent = cur.narration || "";
+
+    $("btn-prev-scene").disabled = chap <= 1;
+    $("btn-next-scene").disabled = chap >= totalChapters;
+
+    buttons.forEach((b, i) => {
+      const isOn = (i + 1) === chap;
+      b.classList.toggle("on", isOn);
+      if (isOn) {
+        b.setAttribute("aria-current", "step");
+        b.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } else {
+        b.removeAttribute("aria-current");
+      }
+    });
+
+    segments.forEach((seg, i) => {
+      seg.classList.toggle("active", (i + 1) === chap);
+      seg.classList.toggle("passed", (i + 1) < chap);
+    });
+
+    accordionItems.forEach((item, i) => {
+      item.classList.toggle("active", (i + 1) === chap);
+    });
+  }
+
+  function seekChapter(chapterNum) {
+    const totalChapters = currentScenes.length;
+    const chap = Math.min(Math.max(chapterNum, 1), totalChapters);
+    const idx = chap - 1;
+    if (currentScenes[idx]) {
+      player.currentTime = currentScenes[idx].start + 0.05;
+      player.play();
+      updateActiveChapter(chap);
+    }
+  }
+
+  $("btn-prev-scene").onclick = () => seekChapter(currentActiveChapter - 1);
+  $("btn-next-scene").onclick = () => seekChapter(currentActiveChapter + 1);
+
+  player.ontimeupdate = () => {
+    const activeChap = getActiveChapter(player.currentTime);
+    if (activeChap !== currentActiveChapter) {
+      updateActiveChapter(activeChap);
+    }
+  };
+
+  updateActiveChapter(1);
+
+  const terms = $("terms");
+  terms.replaceChildren();
+  (r.glossary || []).forEach(g => {
+    terms.append(h("dt", { textContent: g.term }), h("dd", { textContent: g.meaning }));
+  });
+  $("tab-btn-glossary").hidden = (r.glossary || []).length === 0;
+
+  const chatLog = $("chat-log");
+  chatLog.replaceChildren(
+    h("div", {
+      className: "chat-msg hint",
+      textContent: "Ask questions about this paper's methods, results, or limits. Answers are grounded in the paper text.",
+    })
+  );
+  $("chat-input").value = "";
+}
+
+// Initial load
+async function loadJob() {
+  try {
+    const res = await fetch("/api/jobs/" + jobId);
+    const data = await res.json();
+    if (!res.ok) {
+      $("r-summary").textContent = "Could not load this paper explainer: " + (data.detail || "Not found.");
+      return;
+    }
+    if (data.status === "done" && data.result) {
+      showResult(data.result);
+    } else {
+      $("r-summary").textContent = "This paper is currently processing or had an error.";
+    }
+  } catch (e) {
+    $("r-summary").textContent = "Could not connect to the server.";
+  }
+}
+loadJob();
+
+/* ---------- chat ---------- */
+$("chat-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const input = $("chat-input");
+  const question = input.value.trim();
+  if (!question) return;
+
+  const log = $("chat-log");
+  const sendBtn = $("chat-send");
+  input.value = "";
+  sendBtn.disabled = true;
+
+  log.append(h("div", { className: "chat-msg user", textContent: question }));
+  const thinking = h("div", { className: "chat-msg bot", textContent: "Thinking…" });
+  log.append(thinking);
+  log.scrollTop = log.scrollHeight;
+
+  try {
+    const res = await fetch("/api/jobs/" + jobId + "/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, history: chatHistory }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      thinking.textContent = data.detail || "Could not answer that question.";
+    } else {
+      thinking.textContent = data.answer;
+      chatHistory.push({ role: "user", content: question }, { role: "assistant", content: data.answer });
+    }
+  } catch (e) {
+    thinking.textContent = "Could not reach the server. Please try again.";
+  } finally {
+    sendBtn.disabled = false;
+    log.scrollTop = log.scrollHeight;
+  }
+});
+
+/* ---------- regenerate ---------- */
+$("regen-btn").addEventListener("click", async () => {
+  closeAllMenus();
+  const style = $("regen-style").value;
+  const player = $("player");
+  player.pause();
+  $("regen-status").hidden = false;
+  $("regen-msg").textContent = "Starting regeneration (" + style + " style)…";
+  try {
+    const res = await fetch("/api/jobs/" + jobId + "/regenerate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ style }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      $("regen-msg").textContent = "Error: " + (data.detail || "Failed to start regeneration.");
+      return;
+    }
+    // Poll new job
+    const newJobId = data.job_id;
+    const interval = setInterval(async () => {
+      try {
+        const jRes = await fetch("/api/jobs/" + newJobId);
+        const jData = await jRes.json();
+        if (jData.status === "running") {
+          $("regen-msg").textContent = (jData.step || "Processing") + " (" + (jData.progress || 0) + "%)";
+        } else if (jData.status === "done") {
+          clearInterval(interval);
+          window.location.href = "/p/" + newJobId;
+        } else {
+          clearInterval(interval);
+          $("regen-msg").textContent = "Regeneration failed: " + (jData.message || "Unknown error.");
+        }
+      } catch (e) {
+        clearInterval(interval);
+        $("regen-msg").textContent = "Lost server connection.";
+      }
+    }, 1500);
+  } catch (e) {
+    $("regen-msg").textContent = "Could not reach the server.";
+  }
+});
+</script>
+</body>
+</html>

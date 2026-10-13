@@ -21,8 +21,10 @@ from dotenv import load_dotenv
 
 load_dotenv(ROOT / ".env")
 
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel
 
 import config
@@ -61,6 +63,69 @@ async def _lifespan(_app: FastAPI):
 app = FastAPI(title="PaperExplainer", lifespan=_lifespan)
 JOBS = {}                      # job_id -> status dict (in memory)
 ONE_AT_A_TIME = threading.Semaphore(1)
+
+
+def render_template(filename: str, replacements: dict[str, str] | None = None) -> str:
+    template_path = ROOT / "frontend" / filename
+    if not template_path.exists():
+        raise HTTPException(404, "Page not found.")
+    content = template_path.read_text(encoding="utf-8")
+    mapping = {
+        "{{SITE_URL}}": config.site_url(),
+        "{{SITE_NAME}}": config.site_name(),
+        "{{CONTACT_EMAIL}}": config.contact_email(),
+    }
+    if replacements:
+        mapping.update(replacements)
+    for key, val in mapping.items():
+        content = content.replace(key, str(val))
+    return content
+
+
+@app.middleware("http")
+async def seo_and_security_middleware(request: Request, call_next):
+    path = request.url.path
+
+    # 1. 301 redirect /index.html -> /
+    if path == "/index.html":
+        return RedirectResponse("/", status_code=301)
+
+    # 2. Trailing slash normalization: redirect e.g. /about/ -> /about
+    if path != "/" and path.endswith("/"):
+        clean_path = path.rstrip("/")
+        query = f"?{request.url.query}" if request.url.query else ""
+        return RedirectResponse(f"{clean_path}{query}", status_code=301)
+
+    response = await call_next(request)
+
+    # 3. Private headers on private pages
+    if (
+        path.startswith("/api/")
+        or path.startswith("/media/")
+        or path.startswith("/p/")
+        or path == "/history"
+    ):
+        response.headers["X-Robots-Tag"] = "noindex, nofollow"
+
+    return response
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        if request.url.path.startswith("/api/"):
+            return JSONResponse(status_code=404, content={"detail": exc.detail or "Not Found"})
+        try:
+            html = render_template("404.html")
+        except Exception:
+            html = "<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>Page Not Found</h1></body></html>"
+        return HTMLResponse(
+            content=html,
+            status_code=404,
+            headers={"X-Robots-Tag": "noindex, nofollow"},
+        )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
 
 
 class ArxivRequest(BaseModel):
@@ -322,7 +387,150 @@ def chat_with_paper(job_id: str, req: ChatRequest):
         raise HTTPException(502, str(e) or "Could not answer that question right now.")
 
 
-# Videos are served from here (supports seeking). The website itself is served at "/".
+# ---------------- Public & Private Web Routes ----------------
+
+@app.get("/", response_class=HTMLResponse)
+def index_page():
+    return HTMLResponse(render_template("index.html"))
+
+
+@app.get("/how-it-works", response_class=HTMLResponse)
+def how_it_works_page():
+    return HTMLResponse(render_template("how-it-works.html"))
+
+
+@app.get("/about", response_class=HTMLResponse)
+def about_page():
+    return HTMLResponse(render_template("about.html"))
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy_page():
+    return HTMLResponse(render_template("privacy.html"))
+
+
+@app.get("/history", response_class=HTMLResponse)
+def history_page():
+    return HTMLResponse(
+        render_template("index.html"),
+        headers={"X-Robots-Tag": "noindex, nofollow"},
+    )
+
+
+@app.get("/p/{job_id}", response_class=HTMLResponse)
+def view_job_result(job_id: str):
+    if not job_id.isalnum():
+        raise HTTPException(404, "Paper explainer not found.")
+    job_dir = JOBS_DIR / job_id
+    result_file = job_dir / "result.json"
+    if not job_dir.exists() or not result_file.exists():
+        raise HTTPException(404, "Paper explainer not found.")
+    try:
+        res_data = json.loads(result_file.read_text(encoding="utf-8"))
+        title = res_data.get("title", "Paper Explained")
+        summary = res_data.get("summary", "")
+    except Exception:
+        title = "Paper Explained"
+        summary = ""
+    html = render_template(
+        "p.html",
+        {
+            "{{TITLE}}": title,
+            "{{SUMMARY}}": summary,
+            "{{JOB_ID}}": job_id,
+        },
+    )
+    return HTMLResponse(
+        content=html,
+        headers={"X-Robots-Tag": "noindex, nofollow"},
+    )
+
+
+# ---------------- SEO & Discovery Endpoints ----------------
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots_txt():
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Allow: /how-it-works\n"
+        "Allow: /about\n"
+        "Allow: /privacy\n"
+        "Allow: /assets/\n"
+        "Allow: /site.webmanifest\n"
+        "Allow: /llms.txt\n"
+        "Disallow: /api/\n"
+        "Disallow: /media/\n"
+        "Disallow: /p/\n"
+        "Disallow: /history\n\n"
+        f"Sitemap: {config.site_url()}/sitemap.xml\n"
+    )
+    return PlainTextResponse(content, media_type="text/plain; charset=utf-8")
+
+
+@app.get("/sitemap.xml")
+def sitemap_xml():
+    base_url = config.site_url()
+    pages = [
+        ("/", "index.html", "1.0", "daily"),
+        ("/how-it-works", "how-it-works.html", "0.8", "weekly"),
+        ("/about", "about.html", "0.8", "monthly"),
+        ("/privacy", "privacy.html", "0.5", "monthly"),
+    ]
+    urls_xml = []
+    for path, filename, priority, changefreq in pages:
+        filepath = ROOT / "frontend" / filename
+        if filepath.exists():
+            mtime = datetime.fromtimestamp(filepath.stat().st_mtime, tz=timezone.utc)
+            lastmod = mtime.strftime("%Y-%m-%d")
+        else:
+            lastmod = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        loc = f"{base_url}{path}" if path != "/" else f"{base_url}/"
+        urls_xml.append(
+            f"  <url>\n"
+            f"    <loc>{loc}</loc>\n"
+            f"    <lastmod>{lastmod}</lastmod>\n"
+            f"    <changefreq>{changefreq}</changefreq>\n"
+            f"    <priority>{priority}</priority>\n"
+            f"  </url>"
+        )
+    xml_content = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls_xml)
+        + "\n</urlset>"
+    )
+    return Response(content=xml_content, media_type="application/xml")
+
+
+@app.get("/llms.txt", response_class=PlainTextResponse)
+def llms_txt():
+    content = render_template("llms.txt")
+    return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
+
+
+@app.get("/site.webmanifest")
+def site_webmanifest():
+    manifest_path = ROOT / "frontend" / "site.webmanifest"
+    if manifest_path.exists():
+        return Response(
+            content=manifest_path.read_text(encoding="utf-8"),
+            media_type="application/manifest+json",
+        )
+    raise HTTPException(404, "Manifest not found.")
+
+
+@app.get("/favicon.ico")
+def favicon_ico():
+    fav_path = ROOT / "frontend" / "assets" / "favicon-32x32.png"
+    if fav_path.exists():
+        return Response(content=fav_path.read_bytes(), media_type="image/png")
+    raise HTTPException(404, "Favicon not found.")
+
+
+# Static assets
+app.mount("/assets", StaticFiles(directory=ROOT / "frontend" / "assets"), name="assets")
+app.mount("/demo", StaticFiles(directory=ROOT / "frontend" / "demo"), name="demo")
 app.mount("/media", StaticFiles(directory=JOBS_DIR), name="media")
-app.mount("/", StaticFiles(directory=ROOT / "frontend", html=True), name="site")
+
 

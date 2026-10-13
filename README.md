@@ -66,6 +66,127 @@ Render a standalone sample animation video (`test_animation.mp4`) covering all v
 python backend/test_animate.py
 ```
 
+Run the production SEO, metadata, canonical, and header tests:
+
+```bash
+python backend/test_production.py
+```
+
+## 5. Production Deployment & SEO Configuration
+
+In production, PaperExplainer generates absolute canonical URLs, Open Graph image URLs, XML sitemaps, and robots.txt directives dynamically using your base URL. Never hard-code domains in the codebase.
+
+### Environment Configuration
+
+Configure the following variables in `.env`:
+
+```env
+# Base URL for public links, sitemap, canonical tags, and Open Graph cards (no trailing slash)
+SITE_URL=https://paperexplainer.org
+
+# Brand name displayed in metadata and titles
+SITE_NAME=PaperExplainer
+
+# Public contact address in Schema.org and copy
+CONTACT_EMAIL=contact@paperexplainer.org
+```
+
+### Reverse-Proxy Setup
+
+Run PaperExplainer behind a reverse proxy (such as Nginx or Caddy) to terminate HTTPS, compress static assets, forward host headers, and 301-redirect `www` to the bare domain.
+
+#### Nginx Configuration
+
+```nginx
+# 1. Redirect HTTP to HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name paperexplainer.org www.paperexplainer.org;
+    return 301 https://paperexplainer.org$request_uri;
+}
+
+# 2. Redirect www.paperexplainer.org to bare domain
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name www.paperexplainer.org;
+
+    ssl_certificate /etc/letsencrypt/live/paperexplainer.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/paperexplainer.org/privkey.pem;
+
+    return 301 https://paperexplainer.org$request_uri;
+}
+
+# 3. Main server block
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name paperexplainer.org;
+
+    ssl_certificate /etc/letsencrypt/live/paperexplainer.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/paperexplainer.org/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # Gzip & Brotli compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml
+        image/svg+xml;
+
+    # Upload limit for PDFs
+    client_max_body_size 30M;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # WebSocket / long-running connection support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 600s;
+    }
+}
+```
+
+#### Caddy Configuration
+
+```caddy
+# Redirect www to bare domain
+www.paperexplainer.org {
+    redir https://paperexplainer.org{uri} permanent
+}
+
+# Main application block with automatic HTTPS & compression
+paperexplainer.org {
+    encode zstd gzip
+
+    request_body {
+        max_size 30MB
+    }
+
+    reverse_proxy 127.0.0.1:8000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
+```
+
 ## Files
 
 | File | Job |
